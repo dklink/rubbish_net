@@ -1,3 +1,0 @@
-[submodule "labelImg"]
-	path = labelImg
-	url = git@github.com:tzutalin/labelImg.git
