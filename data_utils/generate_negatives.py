@@ -72,10 +72,11 @@ def is_valid(negative_bbox, positive_bboxes):
     pos_y_mins = pos[:, 3]
     pos_y_maxs = pos[:, 3] + pos[:, 1]
 
-    x_good = np.all(np.logical_or(pos_x_mins >= x_max, pos_x_maxs <= x_min))
-    y_good = np.all(np.logical_or(pos_y_mins >= y_max, pos_y_maxs <= y_min))
-    return x_good and y_good
+    x_good = np.logical_or(pos_x_mins >= x_max, pos_x_maxs <= x_min)
+    y_good = np.logical_or(pos_y_mins >= y_max, pos_y_maxs <= y_min)
+    return np.all(np.logical_or(x_good, y_good))
 
+             
 
 def test_is_valid():
     positive_bboxes = []
