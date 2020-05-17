@@ -2,9 +2,11 @@ from data_utils.crop_bboxes import crop_from_labels
 from data_utils.load_labeled_data import load_labelbox_json
 import random
 import pandas as pd
+import numpy as np
 
 IN_DIR = '/Volumes/Seagate\\ Backup+\\ P/robindevries-35c328/10.01/cropped/'
 OUT_DIR = '../labeled_data/not_trash_images/'
+
 
 
 IMAGE_HEIGHT = 1728
@@ -37,7 +39,8 @@ def generate_negatives(num_negatives):
     negative_filenames = random.choices(filenames, k=num_negatives)
     negative_labels = pd.DataFrame({'filename': negative_filenames, 'bboxes': negative_bboxes})
 
-    crop_from_labels(negative_labels, IN_DIR, OUT_DIR)
+    #crop_from_labels(negative_labels, IN_DIR, OUT_DIR)
+    return negative_labels
 
 
 def is_valid(negative_bbox, positive_bboxes):
@@ -49,7 +52,33 @@ def is_valid(negative_bbox, positive_bboxes):
     :param negative_bbox: bounding box to test
     :param positive_bboxes: list of bounding boxes against which to test negative_bbox
     """
+    if len(positive_bboxes) == 0:
+        return False
 
-    # YOUR CODE HERE :)
+    pos = np.empty((len(positive_bboxes), 4))
+    for i in range(len(positive_bboxes)):
+        pos[i, 0] = positive_bboxes[i]["width"]
+        pos[i, 1] = positive_bboxes[i]["height"]
+        pos[i, 2] = positive_bboxes[i]["left"]
+        pos[i, 3] = positive_bboxes[i]["top"]
 
-    return True
+    x_min = negative_bbox["left"]
+    x_max = negative_bbox["left"] + negative_bbox["width"]
+    y_min = negative_bbox["top"]
+    y_max = negative_bbox["top"] + negative_bbox["height"]
+
+    pos_x_mins = pos[:, 2]
+    pos_x_maxs = pos[:, 2] + pos[:, 0]
+    pos_y_mins = pos[:, 3]
+    pos_y_maxs = pos[:, 3] + pos[:, 1]
+
+    x_good = np.all(pos_x_mins >= x_max or pos_x_maxs <= x_min)
+    y_good = np.all(pos_y_mins >= y_max or pos_y_maxs <= y_min)
+    return x_good and y_good
+
+
+def test_is_valid():
+    positive_bboxes = []
+    positive_bboxes.append({"top": 1, "left": 0, "height": 1, "width": 1})
+    negative_bbox = {"top": 2, "left": 0, "height": 2, "width": 2}
+    print(is_valid(negative_bbox, positive_bboxes))
