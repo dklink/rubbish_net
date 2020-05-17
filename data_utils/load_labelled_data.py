@@ -1,8 +1,11 @@
 import pandas as pd
+import os
+
+LABELS_PATH = '../labeled_data/'
 
 
 def load_labelbox_json():
-    data = pd.read_json('labelled_data/export-2020-05-14T18_46_40.167Z.json')
+    data = pd.read_json(os.path.join(LABELS_PATH, 'export-2020-05-14T18_46_40.167Z.json'))
     # construct a dataframe:  columns: picture_title, bboxes
 
     def extract_bboxes(row):

@@ -1,0 +1,9 @@
+name: rubbish_net
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - numpy
+  - pandas
+prefix: /opt/miniconda3/envs/rubbish_net
