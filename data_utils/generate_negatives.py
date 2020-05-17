@@ -1,5 +1,5 @@
-from data_utils.crop_bboxes import crop_from_labels
-from data_utils.load_labeled_data import load_labelbox_json
+from crop_bboxes import crop_from_labels
+from load_labeled_data import load_labelbox_json
 import random
 import pandas as pd
 import numpy as np
@@ -53,7 +53,7 @@ def is_valid(negative_bbox, positive_bboxes):
     :param positive_bboxes: list of bounding boxes against which to test negative_bbox
     """
     if len(positive_bboxes) == 0:
-        return False
+        return True
 
     pos = np.empty((len(positive_bboxes), 4))
     for i in range(len(positive_bboxes)):
@@ -72,13 +72,16 @@ def is_valid(negative_bbox, positive_bboxes):
     pos_y_mins = pos[:, 3]
     pos_y_maxs = pos[:, 3] + pos[:, 1]
 
-    x_good = np.all(pos_x_mins >= x_max or pos_x_maxs <= x_min)
-    y_good = np.all(pos_y_mins >= y_max or pos_y_maxs <= y_min)
+    x_good = np.all(np.logical_or(pos_x_mins >= x_max, pos_x_maxs <= x_min))
+    y_good = np.all(np.logical_or(pos_y_mins >= y_max, pos_y_maxs <= y_min))
     return x_good and y_good
 
 
 def test_is_valid():
     positive_bboxes = []
     positive_bboxes.append({"top": 1, "left": 0, "height": 1, "width": 1})
+    positive_bboxes.append({"top": -1, "left": -1, "height": 0.5, "width": 0.5})
     negative_bbox = {"top": 2, "left": 0, "height": 2, "width": 2}
     print(is_valid(negative_bbox, positive_bboxes))
+
+test_is_valid()
