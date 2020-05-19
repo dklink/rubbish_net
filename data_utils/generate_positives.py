@@ -1,10 +1,13 @@
 import pandas as pd
 
-from data_utils.crop_bboxes import crop_from_labels
+from data_utils.crop_bboxes import crop_and_resize_from_labels
 from data_utils.load_labeled_data import load_labelbox_json
 
-IN_DIR = '/Volumes/Seagate\\ Backup+\\ P/robindevries-35c328/10.01/cropped/'
+IN_DIR = '/Volumes/SeagateBackup+P/robindevries-35c328/10.01/cropped/'
 OUT_DIR = '../labeled_data/trash_images/'
+
+IMAGE_HEIGHT = 1728
+IMAGE_WIDTH = 3888
 
 
 def generate_positives():
@@ -14,10 +17,31 @@ def generate_positives():
 
     filenames = []
     bboxes = []
+    failures = 0
+    successes = 0
     for row in labels.itertuples():
         for bbox in row.bboxes:
-            filenames.append(row.filename)
-            bboxes.append(bbox)
-    crop_from_labels(pd.DataFrame({'filename': filenames, 'bbox': bboxes}), IN_DIR, OUT_DIR)
+            # expand bbox to square
+            if bbox['width'] > bbox['height']:
+                bbox['top'] -= (bbox['width'] - bbox['height']) // 2
+                bbox['height'] = bbox['width']
+            elif bbox['width'] < bbox['height']:
+                bbox['left'] -= (bbox['height'] - bbox['width']) // 2
+                bbox['width'] = bbox['height']
+            # check bbox still fits in image
+            if fits_in_image(bbox, IMAGE_WIDTH, IMAGE_HEIGHT):
+                filenames.append(row.filename)
+                bboxes.append(bbox)
+                successes += 1
+            else:
+                failures += 1
+    print(f"bbox expansion failures: {failures}, {failures/(failures+successes):.0%} of bboxes")
+    crop_and_resize_from_labels(pd.DataFrame({'filename': filenames, 'bbox': bboxes}), 64, IN_DIR, OUT_DIR)
+
+
+def fits_in_image(bbox, image_width, image_height):
+    return (bbox['left'] >= 0 and bbox['left'] + bbox['width'] <= image_width and
+            bbox['top'] >= 0 and bbox['top'] + bbox['height'] <= image_height)
+
 
 generate_positives()
