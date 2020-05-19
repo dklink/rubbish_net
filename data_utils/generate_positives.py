@@ -1,3 +1,5 @@
+from copy import copy
+
 import pandas as pd
 
 from data_utils.crop_bboxes import crop_and_resize_from_labels
@@ -21,13 +23,7 @@ def generate_positives():
     successes = 0
     for row in labels.itertuples():
         for bbox in row.bboxes:
-            # expand bbox to square
-            if bbox['width'] > bbox['height']:
-                bbox['top'] -= (bbox['width'] - bbox['height']) // 2
-                bbox['height'] = bbox['width']
-            elif bbox['width'] < bbox['height']:
-                bbox['left'] -= (bbox['height'] - bbox['width']) // 2
-                bbox['width'] = bbox['height']
+            bbox = expand_bbox_to_square(bbox)
             # check bbox still fits in image
             if fits_in_image(bbox, IMAGE_WIDTH, IMAGE_HEIGHT):
                 filenames.append(row.filename)
@@ -44,4 +40,14 @@ def fits_in_image(bbox, image_width, image_height):
             bbox['top'] >= 0 and bbox['top'] + bbox['height'] <= image_height)
 
 
-generate_positives()
+def expand_bbox_to_square(in_bbox):
+    bbox = copy(in_bbox)
+    # expand bbox to square
+    if bbox['width'] > bbox['height']:
+        bbox['top'] -= (bbox['width'] - bbox['height']) // 2
+        bbox['height'] = bbox['width']
+    elif bbox['width'] < bbox['height']:
+        bbox['left'] -= (bbox['height'] - bbox['width']) // 2
+        bbox['width'] = bbox['height']
+    return bbox
+
