@@ -32,7 +32,7 @@ def dataset_loaders(batch_size=64):
     for ds in [train_dataset, val_dataset, test_dataset]:
         assert ds.class_to_idx == {'not_trash': 0, 'trash': 1}
 
-    train_load = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size)
-    val_load = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size)
-    test_load = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size)
+    train_load = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+    val_load = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=True)
+    test_load = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
     return train_load, val_load, test_load
