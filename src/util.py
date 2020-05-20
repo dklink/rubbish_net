@@ -24,7 +24,7 @@ def mean_std(dataset):
 def vertical_labels(labels):
     return torch.FloatTensor([labels])
 
-def dataset_loaders(batch_size=64):
+def dataset_loaders(batch_size=128):
     train_mean, train_std = [moment.tolist() for moment in mean_std(dataset=torchvision.datasets.ImageFolder("../train_data", transforms.ToTensor()))]
     trans = [transforms.ToTensor(), transforms.Normalize(mean=train_mean, std=train_std)]
     train_dataset = torchvision.datasets.ImageFolder("../train_data", transforms.Compose(trans), transforms.Compose([transforms.Lambda(vertical_labels)]))
