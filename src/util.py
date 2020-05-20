@@ -21,14 +21,19 @@ def mean_std(dataset):
     second_moment /= len(dataset) * 64 ** 2
     return first_moment, torch.sqrt(second_moment - first_moment.pow(2))
 
+def vertical_labels(labels):
+    return torch.FloatTensor([labels])
 
 
 def dataset_loaders(batch_size=64, mean=(0.3433, 0.1921, 0.1046), std=(0.4053, 0.2412, 0.2080)):
-    trans = [transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)]
-    train_dataset = torchvision.datasets.ImageFolder("../train_data", transforms.Compose(trans))
+    trans = [transforms.ToTensor(), transforms.Normalize(mean=mean, std=std), ]
+    train_dataset = torchvision.datasets.ImageFolder("../train_data", transforms.Compose(trans), transforms.Compose([transforms.Lambda(vertical_labels)]))
     val_dataset = torchvision.datasets.ImageFolder("../val_data", transforms.Compose(trans))
     test_dataset = torchvision.datasets.ImageFolder("../test_data", transforms.Compose(trans))
+    
     train_load = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     val_load = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=True)
     test_load = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
     return train_load, val_load, test_load
+
+dataset_loaders()
