@@ -7,6 +7,20 @@ import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
 import time
 
+
+def evaluate(model, validation_loader):
+    model.eval()
+    with torch.no_grad():
+        acc = .0
+        for i, data in enumerate(validation_loader):
+            X = data[0]
+            y = data[1]
+            predicted = model(X)
+            acc += (predicted.round() == y).sum()/float(predicted.shape[0])
+    model.train()
+    return (acc/(i+1)).detach().item()
+
+
 print('Loading Datasets...')
 train_load, val_load, test_load = dataset_loaders()
 print('Done!')
@@ -37,18 +51,13 @@ for epoch in range(num_epochs):
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
-        optimizer.step()    
+        optimizer.step()
         train_loss.append(loss.data.item())
         predicted = torch.round(outputs)
         correct += (predicted.data == labels.data).sum().item()
     train_accuracy.append(correct / len(train_load.dataset))
 
-    correct = 0
-    for i, (inputs, labels) in enumerate(val_load):
-        outputs = model(inputs)
-        predicted = torch.round(outputs)
-        correct += (predicted.data == labels.data).sum().item()
-    val_accuracy.append(correct / len(val_load.dataset))
+    val_accuracy.append(evaluate(model, val_load))
     toc = time.time()
     epoch_times.append(toc-tic)
     print(f"Epoch {epoch+1} executed in {toc-tic: .1f} seconds")
@@ -60,4 +69,13 @@ plt.plot(np.arange(len(train_loss)), train_loss, color = "lightblue")
 plt.plot(np.arange(len(train_loss)), gaussian_filter1d(np.array(train_loss), sigma =3), color = 'blue')
 plt.xlabel('minibatch #')
 plt.ylabel('loss')
+plt.show()
+
+plt.figure()
+plt.plot(np.arange(num_epochs), train_accuracy, '.-', label='train')
+plt.plot(np.arange(num_epochs), val_accuracy, '.-', label='val')
+plt.xlabel('epoch')
+plt.ylabel('accuracy')
+plt.ylim([.5, 1])
+plt.legend()
 plt.show()

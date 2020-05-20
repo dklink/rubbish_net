@@ -1,0 +1,7 @@
+test_data
+train_data
+val_data
+labeled_data
+.DS_Store
+.idea
+*.pyc
