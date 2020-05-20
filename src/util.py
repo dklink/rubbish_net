@@ -24,16 +24,15 @@ def mean_std(dataset):
 def vertical_labels(labels):
     return torch.FloatTensor([labels])
 
-
-def dataset_loaders(batch_size=64, mean=(0.3433, 0.1921, 0.1046), std=(0.4053, 0.2412, 0.2080)):
-    trans = [transforms.ToTensor(), transforms.Normalize(mean=mean, std=std), ]
+def dataset_loaders(batch_size=64):
+    train_mean, train_std = [moment.tolist() for moment in mean_std(dataset=torchvision.datasets.ImageFolder("../train_data", transforms.ToTensor()))]
+    trans = [transforms.ToTensor(), transforms.Normalize(mean=train_mean, std=train_std)]
     train_dataset = torchvision.datasets.ImageFolder("../train_data", transforms.Compose(trans), transforms.Compose([transforms.Lambda(vertical_labels)]))
-    val_dataset = torchvision.datasets.ImageFolder("../val_data", transforms.Compose(trans))
-    test_dataset = torchvision.datasets.ImageFolder("../test_data", transforms.Compose(trans))
-    
+    val_dataset = torchvision.datasets.ImageFolder("../val_data", transforms.Compose(trans), transforms.Compose([transforms.Lambda(vertical_labels)]))
+    test_dataset = torchvision.datasets.ImageFolder("../test_data", transforms.Compose(trans), transforms.Compose([transforms.Lambda(vertical_labels)]))
+    for ds in [train_dataset, val_dataset, test_dataset]:
+        assert ds.class_to_idx == {'not_trash': 0, 'trash': 1}
     train_load = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     val_load = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=True)
     test_load = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
     return train_load, val_load, test_load
-
-dataset_loaders()
