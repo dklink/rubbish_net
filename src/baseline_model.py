@@ -1,9 +1,9 @@
 from torch import nn
 
 
-class CNN(nn.Module):
+class BaselineCNN(nn.Module):
     def __init__(self):
-        super(CNN, self).__init__()
+        super(BaselineCNN, self).__init__()
 
         self.cnn1 = nn.Conv2d(in_channels=3, out_channels=4, kernel_size=3, stride=1, padding=1)
         self.batchnorm1 = nn.BatchNorm2d(num_features=4)
