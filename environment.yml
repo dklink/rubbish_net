@@ -7,4 +7,5 @@ dependencies:
   - numpy
   - pandas
   - pillow
+  - pytorch
 prefix: /opt/miniconda3/envs/rubbish_net

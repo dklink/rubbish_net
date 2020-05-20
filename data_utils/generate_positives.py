@@ -6,7 +6,7 @@ from data_utils.crop_bboxes import crop_and_resize_from_labels
 from data_utils.load_labeled_data import load_labelbox_json
 
 IN_DIR = '/Volumes/SeagateBackup+P/robindevries-35c328/10.01/cropped/'
-OUT_DIR = '../labeled_data/trash_images/'
+OUT_DIR = '../labeled_data/trash/'
 
 IMAGE_HEIGHT = 1728
 IMAGE_WIDTH = 3888

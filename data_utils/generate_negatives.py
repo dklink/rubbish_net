@@ -10,7 +10,7 @@ from matplotlib import image
 from matplotlib import patches
 
 IN_DIR = '/Volumes/SeagateBackup+P/robindevries-35c328/10.01/cropped/'
-OUT_DIR = '../labeled_data/not_trash_images/'
+OUT_DIR = '../labeled_data/not_trash/'
 
 IMAGE_HEIGHT = 1728
 IMAGE_WIDTH = 3888
